@@ -1,4 +1,3 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>선대칭 지오보드 대결</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -199,7 +198,8 @@ h1 { margin: 0; font: 400 32px/1.15 var(--font-display); text-wrap: balance; }
 .score .unit { color: var(--muted); font-size: 13px; }
 
 .board-wrap { position: relative; width: 100%; margin-inline: auto; }
-.boards.n2 .board-wrap { width: min(100%, max(320px, calc(100svh - 380px))); }
+.boards.n1 { grid-template-columns: minmax(0, 560px); justify-content: center; }
+.boards.n1 .board-wrap, .boards.n2 .board-wrap { width: min(100%, max(320px, calc(100svh - 380px))); }
 .boards.n4 .board-wrap { width: min(100%, 460px); }
 .board-wrap svg { display: block; width: 100%; height: auto; touch-action: manipulation; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; cursor: pointer; }
 .b-bg { fill: var(--board); }
@@ -254,6 +254,19 @@ h1 { margin: 0; font: 400 32px/1.15 var(--font-display); text-wrap: balance; }
 .help { margin: 0; text-align: center; color: var(--muted); font-size: 13.5px; text-wrap: balance; }
 .help + .help { margin-top: -8px; }
 
+/* 학생용 주소 만들기 */
+a.btn { display: inline-flex; align-items: center; text-decoration: none; }
+.linkgen { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 8px 16px; }
+.linkgen summary { cursor: pointer; font-weight: 700; font-size: 15px; min-height: 36px; display: flex; align-items: center; }
+.linkgen summary:focus-visible { outline: 2px solid var(--axis); outline-offset: 2px; border-radius: 6px; }
+.lgbody { display: flex; flex-direction: column; gap: 10px; padding-block: 6px 8px; }
+.lgrow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
+.lgnote { margin: 0; font-size: 13.5px; color: var(--muted); }
+.lgrow .lab { max-width: 100%; }
+#seedInput { width: 9ch; font: 500 15px var(--font-body); padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); color: var(--ink); }
+.urlbox { flex: 1 1 280px; min-width: 0; font: 400 13px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); color: var(--ink); }
+#seedInput:focus-visible, .urlbox:focus-visible { outline: 2px solid var(--axis); outline-offset: 2px; }
+
 @media (max-width: 1000px) {
   .boards.n3, .boards.n5, .boards.n6 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
@@ -276,6 +289,7 @@ h1 { margin: 0; font: 400 32px/1.15 var(--font-display); text-wrap: balance; }
         <div class="setting">
           <span class="lab">참가 인원</span>
           <div class="seg" role="radiogroup" aria-label="참가 인원">
+            <label><input type="radio" name="np" value="1"><span>혼자</span></label>
             <label><input type="radio" name="np" value="2" checked><span>2명</span></label>
             <label><input type="radio" name="np" value="3"><span>3명</span></label>
             <label><input type="radio" name="np" value="4"><span>4명</span></label>
@@ -313,6 +327,24 @@ h1 { margin: 0; font: 400 32px/1.15 var(--font-display); text-wrap: balance; }
     </div>
   </header>
 
+  <details class="linkgen" id="linkgen">
+    <summary>학생용 주소 만들기</summary>
+    <div class="lgbody">
+      <p class="lgnote">위에서 고른 설정(인원, 난이도, 1등 뒤 마감, 틀린 선 알려주기)이 주소에 담겨요. 학생이 이 주소로 들어오면 설정 화면 없이 게임만 보여서 설정을 바꿀 수 없어요. 학생 기기마다 혼자 풀게 하려면 참가 인원을 "혼자"로 고르세요.</p>
+      <div class="lgrow">
+        <label for="seedInput" class="lab">문제 묶음 번호</label>
+        <input id="seedInput" type="text" maxlength="12" autocomplete="off">
+        <span class="lab">같은 번호면 모든 학생이 같은 순서로 같은 문제를 풀어요. 비우면 학생마다 다른 문제가 나와요.</span>
+      </div>
+      <div class="lgrow">
+        <input class="urlbox" id="urlBox" type="text" readonly aria-label="학생용 주소">
+        <button class="btn solid" id="copyUrl" type="button">주소 복사</button>
+        <a class="btn" id="openUrl" href="#" target="_blank" rel="noopener">열어 보기</a>
+      </div>
+      <p class="lgnote" id="copyMsg" aria-live="polite"></p>
+    </div>
+  </details>
+
   <form class="pinbox" id="pinForm" hidden autocomplete="off">
     <label for="pinInput" id="pinLabel">번호 4자리</label>
     <input id="pinInput" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off">
@@ -322,7 +354,7 @@ h1 { margin: 0; font: 400 32px/1.15 var(--font-display); text-wrap: balance; }
   </form>
 
   <section class="stage" aria-label="대결 진행">
-    <div class="round"><span class="k">라운드</span><b id="roundNo">-</b></div>
+    <div class="round"><span class="k" id="roundK">라운드</span><b id="roundNo">-</b></div>
     <div class="clock" id="clock">0.0초</div>
     <button class="btn primary" id="go" type="button">시작</button>
     <p class="msg" id="msg" aria-live="polite"></p>
@@ -446,8 +478,8 @@ function judge(playerSegs, target, ax) {
   for (const k of mine) { if (target.has(k)) ok++; else bad.push(k); }
   return { ok, total: target.size, bad, done: bad.length === 0 && ok === target.size };
 }
-/* 순위 점수는 제친 친구 수다. 못 끝낸 친구는 0점이다. */
-function rankPoints(players, rank) { return players - rank; }
+/* 순위 점수는 인원수에서 시작해 한 등수씩 1점 줄어든다. 1등은 N점, 끝낸 마지막 친구는 1점이고, 시간 안에 못 끝낸 친구는 0점이다. */
+function rankPoints(players, rank) { return players - rank + 1; }
 function subjectParticle(name) {
   const c = name.charCodeAt(name.length - 1);
   if (c >= 0xAC00 && c <= 0xD7A3) return (c - 0xAC00) % 28 === 0 ? '가' : '이';
@@ -464,6 +496,32 @@ function hashPin(s) {
   const str = 'geoboard:' + s;
   for (let i = 0; i < str.length; i++) x = ((x << 5) + x + str.charCodeAt(i)) >>> 0;
   return x.toString(36);
+}
+/* 같은 문제 묶음 번호(seed)면 어느 기기에서나 같은 순서로 같은 문제가 나오도록 하는 난수 */
+function hashStr(s) {
+  let h = 2166136261 >>> 0;
+  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
+  return h >>> 0;
+}
+function mkRng(seed) {
+  let a = hashStr(String(seed));
+  return function () {
+    a = (a + 0x6D2B79F5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function seededOrder(list, seed) {
+  const a = list.slice();
+  const r = mkRng(seed + ':order');
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); const t = a[i]; a[i] = a[j]; a[j] = t; }
+  return a;
+}
+function seededFlags(seed, round) {
+  const r = mkRng(seed + ':flags:' + round);
+  return { a: r() < 0.5, b: r() < 0.5, c: r() < 0.5 };
 }
 </script>
 
@@ -486,6 +544,10 @@ function hashPin(s) {
   function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* 저장할 수 없어도 게임은 계속된다 */ } }
 
+  var params = new URLSearchParams(location.search);
+  var student = params.get('s') === '1'; /* 학생용 주소: 설정 화면과 잠금을 숨기고 주소의 설정을 따른다 */
+  var seed = null; /* 학생용 주소의 문제 묶음 번호 */
+  var best = null; /* 혼자 풀 때 이번 접속의 최고 기록(ms) */
   var np = 2;
   var level = 'easy';
   var dl = 30; /* 1등 뒤 마감(초). 0이면 바로, -1이면 없음 */
@@ -514,6 +576,14 @@ function hashPin(s) {
     return a;
   }
   function pickPuzzle() {
+    if (seed) {
+      var pool = level === 'all' ? PUZZLES.easy.concat(PUZZLES.mid, PUZZLES.hard) : PUZZLES[level];
+      var ord = seededOrder(pool, seed + ':' + level);
+      last = ord[round % ord.length];
+      var sp = instantiate(last, seededFlags(seed + ':' + level, round + 1));
+      sp.target = targetEdges(sp.pts, sp.ax);
+      return sp;
+    }
     if (!bag.length) {
       var src = level === 'all' ? PUZZLES.easy.concat(PUZZLES.mid, PUZZLES.hard) : PUZZLES[level];
       bag = shuffle(src.slice());
@@ -713,7 +783,9 @@ function hashPin(s) {
   }
   function hideVeils() { each(function (i) { $('veil' + i).hidden = true; }); }
   function scoreHelp() {
-    $('scoreHelp').textContent = '점수는 제친 친구 수예요. 지금은 ' + np + '명이라 1등 ' + (np - 1) + '점, 2등 ' + (np - 2) + '점, … 못 끝내면 0점이에요.';
+    $('scoreHelp').textContent = np === 1
+      ? '문제를 하나 풀 때마다 1점이에요. 건너뛰면 점수가 없어요. 위의 시계에 나온 시간이 내 기록이에요.'
+      : '점수는 완성한 순서대로 줘요. 지금은 ' + np + '명이라 1등 ' + np + '점, 2등 ' + (np - 1) + '점, … 끝낸 마지막 친구는 1점이고, 시간 안에 못 끝내면 0점이에요.';
   }
   function syncUI() {
     var go = $('go');
@@ -728,12 +800,13 @@ function hashPin(s) {
     }
     document.querySelectorAll('input[name="np"]').forEach(function (r) { r.disabled = phase === 'count' || play; });
     $('roundNo').textContent = round || '-';
+    $('roundK').textContent = np === 1 ? '문제' : '라운드';
   }
 
   function renderRank(final) {
     var ol = $('rank');
     ol.replaceChildren();
-    if (!order.length) { ol.hidden = true; return; }
+    if (np === 1 || !order.length) { ol.hidden = true; return; }
     var nm = names();
     order.forEach(function (o, idx) {
       var li = document.createElement('li');
@@ -772,12 +845,14 @@ function hashPin(s) {
       showVeil(i, '시작 버튼을 누르면\n문제가 나타나요', false);
     }
     renderRank(false);
-    setMsg('같은 문제를 모든 보드에 동시에 보여 줘요. 먼저 완성한 순서대로 순위를 매겨요.');
+    setMsg(np === 1 ? '시작 버튼을 누르고, 대칭축 건너편을 가장 빠르게 완성해 보세요.' : '같은 문제를 모든 보드에 동시에 보여 줘요. 먼저 완성한 순서대로 순위를 매겨요.');
     scoreHelp();
     syncUI();
   }
   function setPlayers(n) {
     np = n;
+    if (n === 1 && $('name0').value === '1번 친구') $('name0').value = '나';
+    else if (n > 1 && $('name0').value === '나') $('name0').value = '1번 친구';
     $('boards').className = 'boards n' + n;
     $('app').classList.toggle('wide', n >= 3);
     for (var i = 0; i < MAXP; i++) $('panel' + i).hidden = i >= n;
@@ -853,7 +928,7 @@ function hashPin(s) {
     var rank = order.length;
     var bd = $('badge' + i);
     bd.className = 'badge win';
-    bd.textContent = rank === 1 ? '1등! ' + fmtTime(ms) : rank + '등 ' + fmtTime(ms);
+    bd.textContent = np === 1 ? '완성! ' + fmtTime(ms) : (rank === 1 ? '1등! ' + fmtTime(ms) : rank + '등 ' + fmtTime(ms));
     bd.hidden = false;
     if (rank === 1) $('panel' + i).classList.add('won');
     renderRank(false);
@@ -891,8 +966,16 @@ function hashPin(s) {
         lb.hidden = false;
         renderAnswer(i, true);
       });
-      var first = nm[order[0].i];
-      setMsg(first + subjectParticle(first) + ' 1등! 도형 이름: ' + puzzle.n + '.' + (unfinished ? ' 못 끝낸 보드에는 정답이 초록 점선으로 나와요.' : ''));
+      if (np === 1) {
+        var t1 = order[0].ms;
+        var prev = best;
+        var isBest = prev === null || t1 < prev;
+        if (isBest) best = t1;
+        setMsg('완성! 기록 ' + fmtTime(t1) + (isBest && prev !== null ? ' (신기록!)' : '') + ' · 내 최고 기록 ' + fmtTime(best) + ' · 도형 이름: ' + puzzle.n);
+      } else {
+        var first = nm[order[0].i];
+        setMsg(first + subjectParticle(first) + ' 1등! 도형 이름: ' + puzzle.n + '.' + (unfinished ? ' 못 끝낸 보드에는 정답이 초록 점선으로 나와요.' : ''));
+      }
     }
     renderRank(true);
     syncUI();
@@ -900,7 +983,9 @@ function hashPin(s) {
 
   /* 설정 저장 */
   function saveCfg() {
-    lsSet(CFG_KEY, JSON.stringify({ np: np, level: level, dl: dl, hint: $('hint').checked, names: names() }));
+    if (student) return; /* 학생용 주소에서는 이 기기의 선생님 설정을 건드리지 않는다 */
+    refreshUrl();
+    lsSet(CFG_KEY, JSON.stringify({ np: np, level: level, dl: dl, hint: $('hint').checked, names: names(), seed: $('seedInput').value.trim().slice(0, 12) }));
   }
   function loadCfg() {
     var raw = lsGet(CFG_KEY);
@@ -919,8 +1004,9 @@ function hashPin(s) {
     $('lockInfo').replaceChildren();
     var b = document.createElement('b'); b.textContent = '설정 잠김';
     $('lockInfo').appendChild(b);
-    $('lockInfo').appendChild(document.createTextNode(np + '명 · ' + LV_LABEL[level] + ' · ' + dlLabel(dl)));
+    $('lockInfo').appendChild(document.createTextNode((np === 1 ? '혼자' : np + '명') + ' · ' + LV_LABEL[level] + ' · ' + dlLabel(dl)));
     for (var i = 0; i < MAXP; i++) $('name' + i).readOnly = locked;
+    applyMode();
     syncUI();
   }
   function doLock() {
@@ -1022,23 +1108,72 @@ function hashPin(s) {
     r.addEventListener('change', function () { if (r.checked) { setPlayers(parseInt(r.value, 10)); saveCfg(); } });
   });
 
+  /* 학생용 주소 만들기 */
+  function buildUrl() {
+    var base = location.href.split('#')[0].split('?')[0];
+    var q = ['s=1', 'n=' + np, 'lv=' + level, 'dl=' + dl];
+    if ($('hint').checked) q.push('hint=1');
+    var sd = $('seedInput').value.trim();
+    if (sd) q.push('seed=' + encodeURIComponent(sd));
+    return base + '?' + q.join('&');
+  }
+  function refreshUrl() {
+    if (student) return;
+    var u = buildUrl();
+    $('urlBox').value = u;
+    $('openUrl').href = u;
+    $('copyMsg').textContent = '';
+  }
+  $('seedInput').addEventListener('input', saveCfg);
+  $('urlBox').addEventListener('focus', function () { $('urlBox').select(); });
+  $('copyUrl').addEventListener('click', function () {
+    var box = $('urlBox');
+    function fallback() { box.focus(); box.select(); $('copyMsg').textContent = '주소를 선택했어요. Ctrl+C로 복사하세요.'; }
+    try {
+      navigator.clipboard.writeText(box.value).then(function () { $('copyMsg').textContent = '주소를 복사했어요. 학생들에게 보내 주세요.'; }, fallback);
+    } catch (e) { fallback(); }
+  });
+  function applyMode() {
+    if (student) {
+      document.querySelector('.ctl').hidden = true;
+      $('settings').hidden = true;
+      $('lockbar').hidden = true;
+      $('linkgen').hidden = true;
+      $('pinForm').hidden = true;
+    } else {
+      $('linkgen').hidden = locked;
+    }
+  }
+
   /* 시작 */
-  var cfg = loadCfg();
+  var cfg = student ? null : loadCfg();
   if (cfg) {
-    if (cfg.np >= 2 && cfg.np <= MAXP) np = cfg.np;
+    if (cfg.np >= 1 && cfg.np <= MAXP) np = cfg.np;
     if (LV_LABEL[cfg.level]) level = cfg.level;
     if ([0, 30, 60, -1].indexOf(cfg.dl) >= 0) dl = cfg.dl;
     $('hint').checked = !!cfg.hint;
     setRadio('np', np); setRadio('lv', level); setRadio('dl', dl);
   }
+  if (student) {
+    var qn = parseInt(params.get('n'), 10);
+    np = qn >= 1 && qn <= MAXP ? qn : 1;
+    var ql = params.get('lv');
+    if (LV_LABEL[ql]) level = ql;
+    var qd = parseInt(params.get('dl'), 10);
+    if ([0, 30, 60, -1].indexOf(qd) >= 0) dl = qd;
+    $('hint').checked = params.get('hint') === '1';
+    var qs = (params.get('seed') || '').trim().slice(0, 12);
+    seed = qs || null;
+  }
   for (var k = 0; k < MAXP; k++) initBoard(k);
   if (cfg && cfg.names) {
     for (var q = 0; q < MAXP; q++) if (typeof cfg.names[q] === 'string' && cfg.names[q]) $('name' + q).value = cfg.names[q].slice(0, 8);
   }
+  $('seedInput').value = (cfg && typeof cfg.seed === 'string') ? cfg.seed.slice(0, 12) : String(Math.floor(1000 + Math.random() * 9000));
   setPlayers(np);
-  if (pinHash && lsGet(LOCK_KEY) === '1') locked = true;
+  if (!student && pinHash && lsGet(LOCK_KEY) === '1') locked = true;
   applyLock();
+  applyMode();
+  refreshUrl();
 })();
 </script>
-
-</body></html>
